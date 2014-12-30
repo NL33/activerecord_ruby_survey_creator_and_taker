@@ -1,0 +1,64 @@
+Setup: 
+	Desktop: $ gem install bundler
+	$ mkdir active_record_survey
+	$ cd active_record_survey
+	$ mkdir lib spec db
+	$ touch Rakefile
+	$ touch Gemfile
+	$ touch commandline_commands_survey
+	$ touch survey.rb
+	$ touch db/config.yml
+	
+
+Gemfile:
+	source 'https://rubygems.org'  
+
+	gem 'activerecord' 
+	gem 'pg' 
+	gem 'rake' 
+	gem 'rspec' 
+	gem 'active_record_migrations'
+
+  $ bundle install
+
+Rakefile:
+	require 'active_record_migrations'
+	ActiveRecordMigrations.load_tasks
+
+Config.yml [note indenting is important]: 
+	development:
+	  adapter: postgresql
+	  database: active_record_survey_development
+
+	test:
+	  adapter: postgresql
+	  database: active_record_survey_test
+
+Create database:
+	Open up Postgres 
+	$ rake db:create 
+
+Migrations:
+	$ rake db:new_migration name=create_surveys
+
+	$ rake db:new_migration name=create_questions
+	   $ rake "db:new_migration[AddNumberToQuestions, number:integer]"
+	   $ rake "db:new_migration[RemoveSurveyIDFromQuestions, surveyID:integer]"  #done because foreign key  
+	          originally labeled surveyID; this is to change to survey_ID. Similar action below
+	   $ rake "db:new_migration[AddSurveyIdToQuestions, survey_id:integer]"
+
+	$ rake db:new_migration name=create_respondents
+		$ rake "db:new_migration[AddNameToRespondents, name:string]"
+		$ rake "db:new_migration[RemoveSurveyIDFromRespondents, surveyID:integer]" 
+	    $ rake "db:new_migration[AddSurveyIdToRespondents, survey_id:integer]"
+
+	$ rake db:new_migration name=create_answer_choices
+		$ rake "db:new_migration[RemoveQuestionIDFromAnswerChoices, questionID:integer]" 
+	    $ rake "db:new_migration[AddQuestionIdToAnswerChoices, question_id:integer]"
+
+	$ rake db:new_migration name=create_responses
+		$ rake "db:new_migration[RemoveQuestionIDFromResponses, questionID:integer]" 
+	    $ rake "db:new_migration[AddQuestionIdToResponses, question_id:integer]"
+
+NOTE: For correcting error in migration:
+$ rake db:rollback STEP=1  (or the number of steps back in the migration)
